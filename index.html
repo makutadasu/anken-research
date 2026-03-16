@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="芸能事務所の案件リサーチを自動化するダッシュボードツール">
+  <title>案件リサーチ | 芸能案件自動収集ツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <div class="header-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="header-title">案件リサーチ</h1>
+            <p class="header-subtitle">芸能案件自動収集ダッシュボード</p>
+          </div>
+        </div>
+        <div class="header-meta">
+          <div class="header-stat">
+            <span class="stat-number" id="totalCount">0</span>
+            <span class="stat-label">件収集済み</span>
+          </div>
+          <div class="header-last-update">
+            <span id="lastUpdate">未取得</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Search Panel -->
+      <section class="search-panel glass-card">
+        <div class="search-panel-header">
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            検索条件
+          </h2>
+          <button id="toggleFilters" class="btn btn-ghost btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div id="filtersBody" class="search-filters">
+          <!-- Keywords -->
+          <div class="filter-group">
+            <label class="filter-label">検索キーワード</label>
+            <div class="keyword-tags" id="keywordTags">
+              <span class="tag tag-active" data-keyword="オーディション">オーディション ✕</span>
+              <span class="tag tag-active" data-keyword="出演者募集">出演者募集 ✕</span>
+              <div class="tag-input-wrap">
+                <input type="text" id="keywordInput" class="tag-input" placeholder="キーワード追加...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Age Filter -->
+          <div class="filter-group">
+            <label class="filter-label">年齢帯（優先）</label>
+            <div class="chip-group" id="ageFilter">
+              <button class="chip chip-active" data-age="age10">10代</button>
+              <button class="chip chip-active" data-age="age20">20代</button>
+              <button class="chip chip-active" data-age="age30">30代</button>
+              <button class="chip" data-age="age40">40代</button>
+              <button class="chip" data-age="age50">50代</button>
+              <button class="chip" data-age="age60">60歳以上</button>
+            </div>
+          </div>
+
+          <!-- Region Filter -->
+          <div class="filter-group">
+            <label class="filter-label">地域</label>
+            <div class="chip-group" id="regionFilter">
+              <button class="chip chip-active" data-region="JP-13">東京</button>
+              <button class="chip" data-region="JP-14">神奈川</button>
+              <button class="chip" data-region="JP-11">埼玉</button>
+              <button class="chip" data-region="JP-12">千葉</button>
+              <button class="chip" data-region="JP-27">大阪</button>
+              <button class="chip" data-region="all">全国</button>
+            </div>
+          </div>
+
+          <!-- Source Filter -->
+          <div class="filter-group">
+            <label class="filter-label">媒体</label>
+            <div class="chip-group" id="sourceFilter">
+              <button class="chip chip-active source-cinepu" data-source="cinepu">
+                <span class="source-dot dot-cinepu"></span>シネマプランナーズ
+              </button>
+              <button class="chip chip-active source-x" data-source="x">
+                <span class="source-dot dot-x"></span>X (Twitter)
+              </button>
+              <button class="chip chip-active source-tiktok" data-source="tiktok">
+                <span class="source-dot dot-tiktok"></span>TikTok
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="search-actions">
+          <button id="btnSearch" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            案件を検索
+          </button>
+          <button id="btnExportCSV" class="btn btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            CSV出力
+          </button>
+        </div>
+      </section>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state" style="display:none;">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">案件を検索中...</p>
+        <p class="loading-sub" id="loadingDetail">シネマプランナーズを巡回中</p>
+      </div>
+
+      <!-- External Search Links -->
+      <section id="externalLinks" class="external-links" style="display:none;">
+        <h2 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          SNS検索リンク
+        </h2>
+        <div class="external-link-cards">
+          <a id="xSearchLink" href="#" target="_blank" rel="noopener" class="external-card card-x">
+            <div class="external-card-icon">𝕏</div>
+            <div class="external-card-body">
+              <span class="external-card-title">X で検索</span>
+              <span class="external-card-desc">最新のオーディション情報を確認</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+          <a id="tiktokSearchLink" href="#" target="_blank" rel="noopener" class="external-card card-tiktok">
+            <div class="external-card-icon">♪</div>
+            <div class="external-card-body">
+              <span class="external-card-title">TikTok で検索</span>
+              <span class="external-card-desc">最新の出演者募集を確認</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section id="resultsSection" class="results-section">
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </div>
+          <h3>案件を検索してください</h3>
+          <p>上の「案件を検索」ボタンを押すと、最新のオーディション情報を自動収集します</p>
+        </div>
+
+        <!-- Results Header -->
+        <div id="resultsHeader" class="results-header" style="display:none;">
+          <h2 class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            検索結果 <span id="resultCount" class="result-count">0件</span>
+          </h2>
+          <div class="results-actions">
+            <button id="btnClearResults" class="btn btn-ghost btn-sm">クリア</button>
+          </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="resultsGrid" class="results-grid"></div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>案件リサーチ v1.0 — データは cinepu.com から取得しています</p>
+    </footer>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
