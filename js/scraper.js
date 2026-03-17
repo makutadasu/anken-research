@@ -32,7 +32,7 @@ const REGION_PATHS = {
  * @returns {Promise<Array>}
  */
 export async function fetchCinepuListings(options = {}, onProgress = () => { }) {
-  const { ages = ['age10', 'age20', 'age30'], regions = ['JP-13'] } = options;
+  const { ages = ['age10', 'age20', 'age30'], regions = ['JP-13'], rewards = ['paid', 'unpaid'] } = options;
   const allListings = [];
   const seen = new Set();
 
@@ -78,6 +78,9 @@ export async function fetchCinepuListings(options = {}, onProgress = () => { }) 
       const listings = parseListings(html, type, value);
 
       for (const listing of listings) {
+        const isPaidMatch = (listing.isPaid && rewards.includes('paid')) || (!listing.isPaid && rewards.includes('unpaid'));
+        if (!isPaidMatch) continue;
+
         if (!seen.has(listing.url)) {
           seen.add(listing.url);
           allListings.push(listing);

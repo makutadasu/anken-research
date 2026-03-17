@@ -17,6 +17,7 @@ const els = {
     keywordInput: document.getElementById('keywordInput'),
     ageFilter: document.getElementById('ageFilter'),
     regionFilter: document.getElementById('regionFilter'),
+    rewardFilter: document.getElementById('rewardFilter'),
     sourceFilter: document.getElementById('sourceFilter'),
     toggleFilters: document.getElementById('toggleFilters'),
     filtersBody: document.getElementById('filtersBody'),
@@ -41,6 +42,7 @@ let state = {
     keywords: ['オーディション', '出演者募集'],
     activeAges: ['age10', 'age20', 'age30'],
     activeRegions: ['JP-13'],
+    activeRewards: ['paid', 'unpaid'],
     activeSources: ['cinepu', 'x', 'tiktok'],
     isSearching: false,
 };
@@ -141,6 +143,16 @@ function setupChipToggles() {
         chip.classList.toggle('chip-active');
         state.activeSources = getActiveValues(els.sourceFilter, 'source');
     });
+
+    // Reward chips
+    if (els.rewardFilter) {
+        els.rewardFilter.addEventListener('click', (e) => {
+            const chip = e.target.closest('.chip');
+            if (!chip) return;
+            chip.classList.toggle('chip-active');
+            state.activeRewards = getActiveValues(els.rewardFilter, 'reward');
+        });
+    }
 }
 
 function getActiveValues(container, dataAttr) {
@@ -201,6 +213,7 @@ async function handleSearch() {
                 {
                     ages: state.activeAges,
                     regions: state.activeRegions,
+                    rewards: state.activeRewards,
                 },
                 (msg) => {
                     els.loadingDetail.textContent = msg;
